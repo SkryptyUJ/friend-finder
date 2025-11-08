@@ -1,0 +1,4 @@
+name: Frontend Deploy (manual)
+on:
+
+jobs:
