@@ -1,4 +1,19 @@
-name: Backend Deploy (manual)
+name: Backend Deploy
+
 on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Trigger deploy
+        env:
+          RENDER_BACKEND_PROD_HOOK: ""
+        run: bash ops/backend/deploy.sh
