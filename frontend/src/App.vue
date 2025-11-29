@@ -9,19 +9,93 @@ import "mapbox-gl/dist/mapbox-gl.css";
 
 <script lang="ts">
 import mapboxgl from "mapbox-gl";
+import { io } from "socket.io-client";
+
+type UserMarkerLocation = {
+  userId: string,
+  location: mapboxgl.LngLatLike,
+  marker?: mapboxgl.Marker
+}
+
+type UserLocation = Omit<UserMarkerLocation, "marker">
 
 mapboxgl.accessToken =
   "pk.eyJ1Ijoia2FsdWNraTIzIiwiYSI6ImNqNHkxMnFzMzFvdGszM2xhYjNycW00YW8ifQ.srmLkTlTXoMc9ZyXPNH-Tw";
+
+const SOCKET_IO_URL = 'http://localhost:8080'
+  
 let map: mapboxgl.Map | null = null;
+const socket = io(SOCKET_IO_URL);
+
+const ICON_SIZE = 50;
+
+const createMarker = (label: string, location: mapboxgl.LngLatLike) => {
+  const el = document.createElement("div");
+  const width = ICON_SIZE;
+  const height = ICON_SIZE;
+  el.className = "marker";
+  el.style.backgroundImage = `url(https://picsum.photos/seed/${label}/${width}/${height})`;
+  el.style.width = `${width}px`;
+  el.style.height = `${height}px`;
+  el.style.backgroundSize = "100%";
+  el.style.borderRadius = "50%";
+  el.style.border = "3px solid white";
+  el.tabIndex = 0;
+  el.ariaLabel = `Marker with image of the ${label}`;
+
+  el.addEventListener("click", () => {
+    window.alert(label);
+  });
+  el.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" || e.key === " ") {
+      window.alert(label);
+    }
+  });
+
+  return new mapboxgl.Marker(el).setLngLat(location).addTo(map);
+}
 
 export default {
   mounted() {
+    const users: Record<string, UserMarkerLocation> = {}
+
     map = new mapboxgl.Map({
       container: this.$refs.mapContainer,
       style: "mapbox://styles/mapbox/standard",
       center: [19.9, 50.02],
       zoom: 2,
     });
+
+    socket.on("connected", () => {
+      const success = (position: GeolocationPosition) => {
+        socket.send("location_acquired", { 
+          userId: socket.id, location: { lat: position.coords.latitude, lon: position.coords.longitude }
+        } satisfies UserLocation)
+      }
+
+      const error = (err) => {
+        console.log(err)
+      }
+
+      window.navigator.geolocation.getCurrentPosition(success, error);
+    });
+
+    socket.on("location_update", (event: UserLocation) => {
+      if (!users[event.userId]) {
+        const marker = createMarker(event.userId, event.location)
+        users[event.userId] = { ...event, marker }
+      } else {
+        const { marker } = users[event.userId]
+        marker.setLngLat(event.location)
+      }
+    })
+
+    socket.on("user_disconnected", (userId: string) => {
+      if (users[userId]) {
+        users[userId].marker?.remove()
+        delete users[userId]
+      }
+    })
 
     const geoControl = new mapboxgl.GeolocateControl({
       positionOptions: {
@@ -37,79 +111,12 @@ export default {
       console.log("Triggering geolocation");
       geoControl.trigger();
     }, 1000);
-
-    const geojson = {
-      type: "FeatureCollection",
-      features: [
-        {
-          type: "Feature",
-          properties: {
-            label: "boat and human",
-            imageId: 1011,
-            iconSize: [50, 50],
-          },
-          geometry: {
-            type: "Point",
-            coordinates: [20, 50],
-          },
-        },
-        {
-          type: "Feature",
-          properties: {
-            label: "lighthouse",
-            imageId: 870,
-            iconSize: [50, 50],
-          },
-          geometry: {
-            type: "Point",
-            coordinates: [19.9, 50.02],
-          },
-        },
-        {
-          type: "Feature",
-          properties: {
-            label: "dog",
-            imageId: 837,
-            iconSize: [50, 50],
-          },
-          geometry: {
-            type: "Point",
-            coordinates: [19.8, 50.03],
-          },
-        },
-      ],
-    };
-
-    for (const marker of geojson.features) {
-      const el = document.createElement("div");
-      const width = marker.properties.iconSize[0];
-      const height = marker.properties.iconSize[1];
-      el.className = "marker";
-      el.style.backgroundImage = `url(https://picsum.photos/id/${marker.properties.imageId}/${width}/${height})`;
-      el.style.width = `${width}px`;
-      el.style.height = `${height}px`;
-      el.style.backgroundSize = "100%";
-      el.style.borderRadius = "50%";
-      el.style.border = "3px solid white";
-      el.tabIndex = 0;
-      el.ariaLabel = `Marker with image of the ${marker.properties.label}`;
-
-      el.addEventListener("click", () => {
-        window.alert(marker.properties.label);
-      });
-      el.addEventListener("keydown", (e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          window.alert(marker.properties.label);
-        }
-      });
-
-      new mapboxgl.Marker(el).setLngLat(marker.geometry.coordinates).addTo(map);
-    }
   },
 
   unmounted() {
     map?.remove();
     map = null;
+    socket.disconnect()
   },
 };
 </script>
