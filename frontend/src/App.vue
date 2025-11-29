@@ -49,27 +49,24 @@ const createMarker = (label: string, location: mapboxgl.LngLatLike) => {
     return new mapboxgl.Marker(el).setLngLat(location).addTo(map);
 };
 
-const getLocation = (): Promise<GeolocationPosition> => {
-    return new Promise((resolve, reject) => {
-        navigator.geolocation.getCurrentPosition(resolve, reject);
-    });
-};
+const registerLocationChangeListener = (success: PositionCallback) => {
+  navigator.geolocation.watchPosition(success, console.error)
+}
+
+const onLocationChanged = (position: GeolocationPosition) => {
+  if (!socket.id) {
+      console.error("Socket ID is not available");
+      return;
+  }
+  const userLocation: UserLocation = {
+      userId: socket.id,
+      location: { lat: position.coords.latitude, lon: position.coords.longitude }
+  };
+  socket.emit("location_acquired", userLocation); 
+}
 
 const onSocketConnected = async () => {
-    try {
-        const position = await getLocation();
-        if (!socket.id) {
-            console.error("Socket ID is not available");
-            return;
-        }
-        const userLocation: UserLocation = {
-            userId: socket.id,
-            location: { lat: position.coords.latitude, lon: position.coords.longitude }
-        };
-        socket.emit("location_acquired", userLocation);
-    } catch (err) {
-        console.log(err)
-    }
+  registerLocationChangeListener(onLocationChanged)
 };
 
 const onLocationUpdate = (event: UserLocation) => {
