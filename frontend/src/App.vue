@@ -52,6 +52,9 @@ const createMarker = (label: string, location: mapboxgl.LngLatLike) => {
     }
   });
 
+  if (!map) {
+    throw new Error("Map is not initialized");
+  }
   return new mapboxgl.Marker(el).setLngLat(location).addTo(map);
 }
 
@@ -60,7 +63,7 @@ export default {
     const users: Record<string, UserMarkerLocation> = {}
 
     map = new mapboxgl.Map({
-      container: this.$refs.mapContainer,
+      container: this.$refs.mapContainer as HTMLElement,
       style: "mapbox://styles/mapbox/standard",
       center: [19.9, 50.02],
       zoom: 2,
@@ -68,12 +71,16 @@ export default {
 
     socket.on("connected", () => {
       const success = (position: GeolocationPosition) => {
-        socket.send("location_acquired", { 
+        if (!socket.id) {
+          console.error("Socket ID is not available");
+          return;
+        }
+        socket.emit("location_acquired", {
           userId: socket.id, location: { lat: position.coords.latitude, lon: position.coords.longitude }
         } satisfies UserLocation)
       }
 
-      const error = (err) => {
+      const error = (err: GeolocationPositionError) => {
         console.log(err)
       }
 
@@ -85,8 +92,10 @@ export default {
         const marker = createMarker(event.userId, event.location)
         users[event.userId] = { ...event, marker }
       } else {
-        const { marker } = users[event.userId]
-        marker.setLngLat(event.location)
+        const user = users[event.userId]
+        if (user?.marker) {
+          user.marker.setLngLat(event.location)
+        }
       }
     })
 
