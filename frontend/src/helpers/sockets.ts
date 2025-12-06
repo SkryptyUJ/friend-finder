@@ -13,8 +13,7 @@ const id = () => {
     return socket.id;
 };
 
-const onConnected = (callback: () => void) => 
-    socket.on('connected', callback);
+const onConnected = (callback: () => void) => socket.on('connected', callback);
 const onInitState = (callback: (initialUsers: UserLocation[]) => void) =>
     socket.on('init_state', callback);
 const onUserLocationUpdate = (callback: (user: UserLocation) => void) =>
@@ -22,8 +21,7 @@ const onUserLocationUpdate = (callback: (user: UserLocation) => void) =>
 const onUserDisconnected = (callback: (userId: string) => void) =>
     socket.on('user_disconnected', callback);
 
-const emitUserLocation = (location: UserLocation) => 
-    socket.emit('location_update', location);
+const emitUserLocation = (location: UserLocation) => socket.emit('location_update', location);
 
 const disconnect = () => socket.disconnect();
 

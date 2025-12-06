@@ -66,6 +66,20 @@ const removeUser = (userId: string) => {
     }
 };
 
+const toggleStyle = (): string => {
+    if (!userMap) {
+        throw new Error('Map is not initialized');
+    }
+    const style = userMap.getStyle();
+    const newStyleId = style.sprite?.includes('satellite') ? 'standard' : 'satellite-v9';
+    userMap.setStyle(`mapbox://styles/mapbox/${newStyleId}`);
+    return newStyleId;
+};
+
+const getTileUrl = (styleId: string) => {
+    return `https://api.mapbox.com/styles/v1/mapbox/${styleId}/tiles/10/567/347?access_token=${mapboxgl.accessToken}`;
+};
+
 const init = (container: HTMLElement) => {
     userMap = new mapboxgl.Map({
         container,
@@ -102,4 +116,6 @@ const destroy = () => {
 export default {
     init,
     destroy,
+    toggleStyle,
+    getTileUrl,
 };
