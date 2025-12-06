@@ -6,8 +6,19 @@ on:
       - main
 
 jobs:
-  deploy:
+  deploy-dev:
     environment: dev
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Trigger deploy
+        env:
+          RENDER_DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }} 
+        run: bash ops/backend/deploy.sh
+
+  deploy-prod:
+    needs: deploy-dev
+    environment: prod 
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
