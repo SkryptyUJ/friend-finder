@@ -9,11 +9,25 @@ on:
       - main
 
 jobs:
-  deploy:
+  deploy-dev:
+    environment: dev
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - name: Trigger deploy
         env:
-          RENDER_BACKEND_PROD_HOOK: ""
-        run: bash ops/backend/deploy.sh
+          RENDER_DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_FRONTEND_HOOK }}
+          COMMIT_REF: ${{ github.sha }}
+        run: bash ops/deploy.sh
+
+  deploy-prod:
+    needs: deploy-dev
+    environment: prod 
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Trigger deploy
+        env:
+          RENDER_DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_FRONTEND_HOOK }}
+          COMMIT_REF: ${{ github.sha }}
+        run: bash ops/deploy.sh

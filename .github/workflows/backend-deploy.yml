@@ -15,7 +15,7 @@ jobs:
         env:
           RENDER_DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }}
           COMMIT_REF: ${{ github.sha }}
-        run: bash ops/backend/deploy.sh
+        run: bash ops/deploy.sh
 
   deploy-prod:
     needs: deploy-dev
@@ -27,4 +27,4 @@ jobs:
         env:
           RENDER_DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }}
           COMMIT_REF: ${{ github.sha }}
-        run: bash ops/backend/deploy.sh
+        run: bash ops/deploy.sh
