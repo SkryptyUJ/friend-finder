@@ -18,9 +18,9 @@ def health():
 @socketio.on('connect')
 def connect():
     print(f'Client connected: {request.sid}')
-    locations[request.sid] = {'userId': request.sid, 'latitude': None, 'longitude': None}
+    locations[request.sid] = {'userId': request.sid, 'location': {'lat': None, 'lon': None}}
     emit('connected')
-    emit('init_state', locations)
+    emit('init_state', list(locations.values()))
 
 
 @socketio.on('location_acquired')

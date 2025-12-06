@@ -21,7 +21,7 @@ const onUserLocationUpdate = (callback: (user: UserLocation) => void) =>
 const onUserDisconnected = (callback: (userId: string) => void) =>
     socket.on('user_disconnected', callback);
 
-const emitUserLocation = (location: UserLocation) => socket.emit('location_update', location);
+const emitUserLocation = (location: UserLocation) => socket.emit('location_acquired', location);
 
 const disconnect = () => socket.disconnect();
 

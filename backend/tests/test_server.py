@@ -36,16 +36,17 @@ class TestConnection:
         init_state_msg = next((msg for msg in received if msg['name'] == 'init_state'), None)
         assert init_state_msg is not None
         assert 'args' in init_state_msg
-        assert isinstance(init_state_msg['args'][0], dict)
+        assert isinstance(init_state_msg['args'][0], list)
 
     def test_connect_stores_user_in_locations(self, client):
         assert len(locations) == 1
         user_data = list(locations.values())[0]
         assert 'userId' in user_data
-        assert 'latitude' in user_data
-        assert 'longitude' in user_data
-        assert user_data['latitude'] is None
-        assert user_data['longitude'] is None
+        assert 'location' in user_data
+        assert 'lat' in user_data['location']
+        assert 'lon' in user_data['location']
+        assert user_data['location']['lat'] is None
+        assert user_data['location']['lon'] is None
 
 
 class TestLocationUpdate:
@@ -194,8 +195,8 @@ class TestMultiUserScenarios:
         client1, client2, client3 = multiple_clients
         user_ids = list(locations.keys())
 
-        location1 = {'userId': user_ids[0], 'latitude': 52.2297, 'longitude': 21.0122}
-        location2 = {'userId': user_ids[1], 'latitude': 59.3293, 'longitude': 18.0686}
+        location1 = {'userId': user_ids[0], 'location': {'lat': 52.2297, 'lon': 21.0122}}
+        location2 = {'userId': user_ids[1], 'location': {'lat': 59.3293, 'lon': 18.0686}}
 
         client1.emit('location_acquired', location1)
         client2.emit('location_acquired', location2)
@@ -208,5 +209,8 @@ class TestMultiUserScenarios:
 
         init_state_data = init_state_msg['args'][0]
 
-        assert init_state_data[user_ids[0]] == location1
-        assert init_state_data[user_ids[1]] == location2
+        user0_data = next((u for u in init_state_data if u['userId'] == user_ids[0]), None)
+        user1_data = next((u for u in init_state_data if u['userId'] == user_ids[1]), None)
+
+        assert user0_data == location1
+        assert user1_data == location2
