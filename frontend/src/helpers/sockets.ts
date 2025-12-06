@@ -1,7 +1,7 @@
 import { io } from 'socket.io-client';
 import type { UserLocation } from '@/types/user.types';
 
-const SOCKET_IO_URL = import.meta.env.SOCKET_IO_URL
+const SOCKET_IO_URL = import.meta.env.SOCKET_IO_URL;
 
 const socket = io(SOCKET_IO_URL);
 

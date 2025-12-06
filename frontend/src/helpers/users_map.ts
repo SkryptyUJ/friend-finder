@@ -80,6 +80,25 @@ const getTileUrl = (styleId: string) => {
     return `https://api.mapbox.com/styles/v1/mapbox/${styleId}/tiles/10/567/347?access_token=${mapboxgl.accessToken}`;
 };
 
+const searchAddress = async (query: string): Promise<{ lat: number; lon: number } | null> => {
+    const response = await fetch(
+        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&limit=1&format=jsonv2`,
+    );
+    const data = await response.json();
+    if (data.length === 0) {
+        return null;
+    }
+    return { lat: parseFloat(data[0].lat), lon: parseFloat(data[0].lon) };
+};
+
+const flyTo = (location: mapboxgl.LngLatLike) => {
+    if (!userMap) {
+        throw new Error('Map is not initialized');
+    }
+
+    userMap.flyTo({ center: location, zoom: 14, duration: 1000 });
+};
+
 const init = (container: HTMLElement) => {
     userMap = new mapboxgl.Map({
         container,
@@ -118,4 +137,6 @@ export default {
     destroy,
     toggleStyle,
     getTileUrl,
+    searchAddress,
+    flyTo,
 };
