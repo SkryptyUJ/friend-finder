@@ -95,15 +95,15 @@ export default {
 
 .map-style {
     position: fixed;
-    bottom: 40px;
-    left: 20px;
+    bottom: 16px;
+    left: 16px;
     background-color: rgba(0, 0, 0, 0.5);
     background-image: url('https://api.mapbox.com/v4/mapbox.satellite/12/2274/1389.jpg90?access_token=pk.eyJ1Ijoia2FsdWNraTIzIiwiYSI6ImNqNHkxMnFzMzFvdGszM2xhYjNycW00YW8ifQ.srmLkTlTXoMc9ZyXPNH-Tw');
     color: #fff;
     font-family: Arial, sans-serif;
     border: 2px solid #fff;
     border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 0 12px rgba(0, 0, 0, 0.2);
     width: 80px;
     height: 80px;
     display: flex;
@@ -147,11 +147,11 @@ export default {
 
 .search-bar {
     position: fixed;
-    top: 20px;
-    left: 20px;
+    top: 16px;
+    left: 16px;
     background-color: #fff;
     border-radius: 30px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 0 12px rgba(0, 0, 0, 0.2);
     padding: 8px 16px;
     display: flex;
     align-items: center;
