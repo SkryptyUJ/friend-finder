@@ -13,7 +13,8 @@ jobs:
       - uses: actions/checkout@v4
       - name: Trigger deploy
         env:
-          RENDER_DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }} 
+          RENDER_DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }}
+          COMMIT_REF: ${{ github.sha }}
         run: bash ops/backend/deploy.sh
 
   deploy-prod:
@@ -24,5 +25,6 @@ jobs:
       - uses: actions/checkout@v4
       - name: Trigger deploy
         env:
-          RENDER_DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }} 
+          RENDER_DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }}
+          COMMIT_REF: ${{ github.sha }}
         run: bash ops/backend/deploy.sh
