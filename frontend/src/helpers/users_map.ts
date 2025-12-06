@@ -7,6 +7,38 @@ mapboxgl.accessToken =
 
 let userMap: mapboxgl.Map | null = null;
 const users: Record<string, UserMarkerLocation> = {};
+let currentUser: UserLocation | null = null;
+
+const createPath = async (start: [number, number], end: [number, number]) => {
+    if (!userMap) {
+        throw new Error('Map is not initialized');
+    }
+
+    const response = await fetch(
+        `https://brouter.de/brouter?lonlats=${start[0]},${start[1]}|${end[0]},${end[1]}&profile=trekking&alternativeidx=0&format=geojson`,
+    );
+    const data = await response.json();
+
+    const route = data.features[0].geometry;
+    console.log(data);
+
+    const source = userMap.getSource('route') as mapboxgl.GeoJSONSource;
+    if (source) {
+        source.setData(data);
+    }
+};
+
+const coordsToArray = (location: mapboxgl.LngLatLike): [number, number] => {
+    if (Array.isArray(location)) {
+        return [location[0], location[1]];
+    } else if ('lng' in location && 'lat' in location) {
+        return [location.lng, location.lat];
+    } else if ('lon' in location && 'lat' in location) {
+        return [location.lon, location.lat];
+    } else {
+        throw new Error('Invalid location format'); 
+    }
+};
 
 const createMarker = (label: string, location: mapboxgl.LngLatLike) => {
     const el = document.createElement('div');
@@ -15,11 +47,15 @@ const createMarker = (label: string, location: mapboxgl.LngLatLike) => {
     el.ariaLabel = `Marker with image of the ${label}`;
 
     el.addEventListener('click', () => {
-        window.alert(label);
+        if (!currentUser) return;
+        const locA = coordsToArray(location);
+        const locB = coordsToArray(currentUser.location);
+        createPath(locA, locB);
     });
+
     el.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' || e.key === ' ') {
-            window.alert(label);
+            el.click();
         }
     });
 
@@ -34,6 +70,7 @@ const onLocationChanged = (position: GeolocationPosition) => {
         userId: socket.id(),
         location: { lat: position.coords.latitude, lon: position.coords.longitude },
     };
+    currentUser = userLocation;
     socket.emitUserLocation(userLocation);
 };
 
@@ -99,6 +136,30 @@ const flyTo = (location: mapboxgl.LngLatLike) => {
     userMap.flyTo({ center: location, zoom: 14, duration: 1000 });
 };
 
+const onMapLoad = () => {
+    userMap?.addSource('route', {
+        'type': 'geojson',
+        'data': {
+            'type': 'FeatureCollection',
+            'features': []
+        }
+    });
+
+    userMap?.addLayer({
+        'id': 'route',
+        'type': 'line',
+        'source': 'route',
+        'layout': {
+            'line-join': 'round',
+            'line-cap': 'round'
+        },
+        'paint': {
+            'line-color': '#888',
+            'line-width': 8
+        }
+    });
+};
+
 const init = (container: HTMLElement) => {
     userMap = new mapboxgl.Map({
         container,
@@ -116,6 +177,8 @@ const init = (container: HTMLElement) => {
     });
 
     userMap.addControl(geoControl);
+
+    userMap.on('load', onMapLoad);
 
     socket.onConnected(registerLocationChangeListener);
     socket.onInitState(initState);
