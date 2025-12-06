@@ -12,18 +12,18 @@ echo ""
 
 cd "$PROJECT_ROOT"
 
-if ! command -v pip >/dev/null 2>&1; then
-  echo "pip not found. Please ensure Python is installed." >&2
+if ! command -v python3 >/dev/null 2>&1; then
+  echo "python3 not found. Please ensure Python is installed." >&2
   exit 1
 fi
 
 echo "Installing dependencies..."
-pip install --upgrade pip >/dev/null
-pip install -r "$BACKEND_DIR/requirements.txt" >/dev/null
+python3 -m pip install --upgrade pip >/dev/null
+python3 -m pip install -r "$BACKEND_DIR/requirements.txt" >/dev/null
 
 echo "Running pytest..."
 export PYTHONPATH="$PROJECT_ROOT"
-pytest -v --cov=backend --cov-report=term-missing backend/tests
+python3 -m pytest -v --cov=backend --cov-report=term-missing backend/tests
 
 echo ""
 echo "✅ All tests passed!"
