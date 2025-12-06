@@ -5,7 +5,7 @@ from flask_socketio import SocketIO, emit
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret!'
-socketio = SocketIO(app, cors_allowed_origins="*", ping_timeout=60)
+socketio = SocketIO(app, cors_allowed_origins="*", ping_timeout=60, message_queue="redis://red-d4q5ujruibrs73dg30gg:6379")
 
 locations = {}
 

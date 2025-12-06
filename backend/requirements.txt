@@ -4,8 +4,14 @@ bidict==0.23.1
     # via python-socketio
 blinker==1.9.0
     # via flask
+certifi==2025.11.12
+    # via requests
+charset-normalizer==3.4.4
+    # via requests
 click==8.3.0
     # via flask
+coverage==7.12.0
+    # via pytest-cov
 flask==3.1.2
     # via
     #   friend-finder (pyproject.toml)
@@ -16,6 +22,8 @@ gunicorn==23.0.0
     # via friend-finder (pyproject.toml)
 h11==0.16.0
     # via wsproto
+idna==3.11
+    # via requests
 iniconfig==2.0.0
     # via pytest
 itsdangerous==2.2.0
@@ -32,7 +40,9 @@ packaging==25.0
     #   gunicorn
     #   pytest
 pluggy==1.5.0
-    # via pytest
+    # via
+    #   pytest
+    #   pytest-cov
 pytest==8.3.4
     # via
     #   friend-finder (pyproject.toml)
@@ -45,11 +55,17 @@ python-socketio==5.15.0
     # via
     #   friend-finder (pyproject.toml)
     #   flask-socketio
+redis==7.1.0
+    # via friend-finder (pyproject.toml)
+requests==2.32.5
+    # via python-socketio
 simple-websocket==1.1.0
     # via python-engineio
+urllib3==2.6.0
+    # via requests
+websocket-client==1.9.0
+    # via python-socketio
 werkzeug==3.1.3
     # via flask
 wsproto==1.3.2
     # via simple-websocket
-coverage[toml]>=5.2.1
-    # via pytest-cov
