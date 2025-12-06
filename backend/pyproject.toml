@@ -10,4 +10,5 @@ dependencies = [
     "gunicorn>=23.0.0",
     "pytest>=8.3.4",
     "pytest-cov>=7.0.0",
+    "python-socketio[client]>=5.15.0",
 ]

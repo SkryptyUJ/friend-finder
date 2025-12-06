@@ -16,6 +16,8 @@ gunicorn==23.0.0
     # via friend-finder (pyproject.toml)
 h11==0.16.0
     # via wsproto
+iniconfig==2.0.0
+    # via pytest
 itsdangerous==2.2.0
     # via flask
 jinja2==3.1.6
@@ -26,18 +28,28 @@ markupsafe==3.0.3
     #   jinja2
     #   werkzeug
 packaging==25.0
-    # via gunicorn
+    # via
+    #   gunicorn
+    #   pytest
+pluggy==1.5.0
+    # via pytest
+pytest==8.3.4
+    # via
+    #   friend-finder (pyproject.toml)
+    #   pytest-cov
+pytest-cov==7.0.0
+    # via friend-finder (pyproject.toml)
 python-engineio==4.12.3
     # via python-socketio
 python-socketio==5.15.0
-    # via flask-socketio
+    # via
+    #   friend-finder (pyproject.toml)
+    #   flask-socketio
 simple-websocket==1.1.0
     # via python-engineio
 werkzeug==3.1.3
     # via flask
 wsproto==1.3.2
     # via simple-websocket
-pytest>=8.3.4
-    # via friend-finder (pyproject.toml)
-pytest-cov>=7.0.0
-    # via friend-finder (pyproject.toml)
+coverage[toml]>=5.2.1
+    # via pytest-cov

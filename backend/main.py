@@ -10,6 +10,11 @@ socketio = SocketIO(app, cors_allowed_origins="*", ping_timeout=60)
 locations = {}
 
 
+@app.route('/health')
+def health():
+    return {'status': 'ok', 'connected_users': len(locations)}, 200
+
+
 @socketio.on('connect')
 def connect():
     print(f'Client connected: {request.sid}')
